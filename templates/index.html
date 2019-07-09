@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Computer_Vision</title>
+  </head>
+  <body background="{{ url_for('static', filename='bg.jpg')}}">
+       	  <h1 style="color:white">AI Based Attendance System</h1>
+    <img style="float:left" src="{{ url_for('calc') }}">
+    <div style="margin:50px 0px 0px 60%">    
+    <h2 style="color:white;"> Add Visitor </h2>
+	 <form action="/data" method="post">	
+	<span style="color:white">PersonName</span> <input type="text" name="data" value="{{request.form.data}}">
+		
+	<input type="submit" value="Frame">
+	<h2 style="color:white;">{{info}}</h2> 
+    </div>	 </form>
+	
+  </body>
+</html>

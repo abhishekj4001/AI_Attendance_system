@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+	<head><title>Computer_Vision</title></head>
+	<body background="{{ url_for('static', filename='bg.jpg')}}">
+	<h1 style="color:white">AI Security System</h1>
+	<img style="float:left" src="{{ url_for('calc') }}">
+	<div style="margin:50px 0px 0px 60%">
+		<h1 style="color:white">Sign In</h1>
+		<form action="/login" method="post">
+			<span style="color:white">Login Id</span> <input type="text" name="username" value="{{request.form.username}}"><br>
+			<span style="color:white">Password</span><input type="password" name="password" value="{{request.form.password}}"><br>
+			<input type="submit" value="login">
+		</form>
+												<h2 style="color:white">{{error}}</h2>
+		<h2 style="color:white">{{report}}</h2>
+												</div>
+																					</body>
+</html>
+
