@@ -1,0 +1,321 @@
+
+Humare Project m 7 files hai:
+
+1. attent.txt
+2. cam_access.py 
+3. datasets (yeh folder h )
+4. haarcascade_eye.xml
+5. haarcascade_frontalface_default.xml
+6. __init__.py 
+7. templates (yeh folder h)
+
+1. attent.txt :-
+--------------
+
+attent.txt m jitni bhi photos scan hoti h un photos k time,date ish file m store hoti h.
+
+2. cam_access.py :-
+-----------------
+
+camera ko access krne k liye ek particular alag program banaya h cam_access.py k name se.
+Now, ab ishme humne "cv2" library ko import kiya opencv k liye.
+
+Next, "numpy" library import ki jo ki array ki tareh work krta or only integer values ko
+store krne k liye i.e. ek integer array hota h.
+
+Next, import "sys" library "command line argument k liye".
+Next, import "os" operating system se interact k liye , not necessary to import this library.
+Next, import "numpy" as "np" ishka mtlb h ek tareeke se typedef matlab numpy ka use kr skte
+	  hai "np" k name se.
+	  
+Ab ish file k andhar 3 functions h:
+	1. detect(gray,im)
+	2. datasets(arg)
+	3. identifier()
+	
+	-> detect() function jb call hoga tb wo aap k face ko detect krna start kr dega,
+		detect() k baad jb datasets(arg) function call hoga tb yh aapki images ki 
+		"black and white"(gray images) number of copies generate krdega datasets k folder m, taaki
+		system aapki image ko analyze kr paaye ki aap kon ho datasets create krne k liye.
+		
+		Last, identifier() function yh trained karega un images ko ki yh particular kis
+		person ki h.
+		
+	-> detect() main aapki "eye" or "face" ko focus karega.
+	-> jab identifier() function call hoga tb wo aap k face ko analyze karega or kahin
+		bhi aap ka face match ho gya (store wali images se) toh wo automatically
+		aapka name show krne lagega yha aapka particular name kisi file mein save ho jayega.
+		
+		It means identifier() first time jb ushne detect kiya toh ushne gray images store
+		kr li or wo trained ho gya ek tareeke se, fir kuch din baad jb wahi person face
+		scan karega toh identifier() function smj jayega yh abhishek h (yha koi or bhi) or
+		ushki attendance lg jayegi.(yha aapne jis bhi task k liye usse design kiya h wo 
+		execute ho jayega).
+		Example :-
+			Jaise security system m yh kisi ko warning de dega ,ki yh particular person
+			ish jageh par identify hua.
+			
+		Or yh face ka comparison old images(gray images) se karega jo datasets m store h.
+		Jitne jdaa datasets utna time consuming.
+		
+	1. detect(gray,im):-
+	~~~~~~~~~~~~~~~~~~~
+	
+	-> 	Ab jb apan ne detect(gray,im) function call kiya toh argument m 2 parameter paas huye
+		h i.e gray which store GRAY IMAGE and second is "im" which store colored image.
+		Gray image automatically convert ho k gray parameter ko paas hogi.
+		Fir ishme apan ne "face_cascade" ek variable liya jishme CascadeClassifier() function
+		call kiye jo cv2 ka function h. 
+			face_cascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
+		
+		CascadeClassifier() ek xml file ko read krta h jo ki predefined h by intel.Kisi
+		face ko detect krne k liye kya kya features dekhne pdhte h wo ish file m hote h 
+		"haarcascade_frontalface_default.xml" jo predefined h phle se. Ish file ko jo 
+		bhi xml values milengi usse yh smj jayega ki yh ish person ka face h.
+		
+		Aise hee eye ko detect krne k liye "haarcascade_eye.xml" file hoti h.
+		
+		Fir ek new variable banayenge faces k name se :-
+			faces = face_cascade.detectMultiScale(gray,1.3,5) yh function kya krega multiple
+			copies jo aaygi photos ki unme se 1.3 pixel ki image crop kr k ush ko store karega and ushki 
+			5 copies create karega un 5 copies m se 1 copy ko use kiya jayega.
+			yeh function jb images save hoti h tb ishka main use hota h ki multiple images 
+			m se itne size ki image store krni h or ushki utni copies jo arg. m di hgi.
+			Ek tareeke se yh SCALING ka work krta h.
+			Agar aap ko image ka size check krna ho toh datasets m jaa kar check kr skte ho.
+			All images are of equal size in datasets.
+			
+		Ab hume kaise pta chalega ki face detect hua h yha nhi, toh variable "faces" gives
+		4 values continuously which is used in for loop:-
+			
+			for(x,y,w,h) in faces :
+				here x is horizontal axis
+					 y is vertical axis
+					 w is width and h is height
+					 
+			cv2.rectangle() -> jo ki rectangle banayega with the help of above 4 values.
+			cv2.rectangle(im,(x,y),(x+w,y+h),(255,0,0),2) 
+				here x+w :- horizontal line draw karega
+					 y+h :- vertical line draw karega
+					 2 :- thickness of rectangle
+					 
+			roi_gray = gray[y:y+h,x:x+w] 
+				Here, roi is "region of interest" ,it means agar ush particular face m agar
+					  kuch or bhi detect kra rahe ho that is called "roi" like eye.
+					 
+					  roi_gray and roi_color variable k through  hum eye par bhi rectangle box 
+					  draw kr skte h.
+					  
+					  roi_gray or roi_color dono m se koi sa bhi use kr skte ho.
+					  
+			eyes=eye_cascade.detectMultiScale(roi_gray,1.1,3)
+			for(ex,ey,ew,eh) in eyes:
+					cv2.rectangle(roi_color,(ex,ey),(ex+ew,ey+eh),(0,255,0),2)
+			yeh upar wala for loop eyes ko detect krne k liye i.e. eye pr rectangle box
+			banane k liye.
+			
+		return im -> rectangle box wali image return karega colored m.
+		
+	
+	2. datasets(arg): 
+	~~~~~~~~~~~~~~~~~
+		-> "arg" isliye diya h becoz jishka bhi datasets create karenge ush datasets ka name 
+			"arg" m store ho jayega.
+			
+			dataset='datasets' -> All the faces data will be present in this folder(datasets)
+			sub_data=arg  -> datasets name
+			
+			path=os.path.join(datasets,sub_data) :-
+				yeh os library ka function h,suppose mujhe datasets k andhar ek folder banana
+				hai or ush folder m images store krni h toh yh ushka path h.sub_data ush folder
+				ka name hoga.'datasets' parent directory ho gyi, ush k andhar alg alg name k
+				folder banenge jis m individual person ki image store hgi.
+				Like harshita,jain,rini... folder, harshita m harshita ki image , jain m jain ki
+					 image store hogi and so on.
+					 
+			if not os.path.isdir(path):  -> yeh directory check krega present h yha nhi
+				os.mkdir(path)  		-> agar present nhi h toh directory create kar dega
+				
+			(width,height)=(130,100) -> defining the size of images
+			
+			webcam=cv2.VideoCapture(0) -> '0' is use for my webcam(laptop),if you have another camera attached
+											use '1'.
+											
+			count=1
+			while count<200: -> The program loops until it has 30 images of the face.Becoz
+								system ko jitna jdaa datasets milega ushki "accuracy" uthni
+								badh jayegi, i.e. image or clear dikhne lagegi.  
+								
+				gray=cv2.cvtColor(im,cv2.COLOR_BGR2GRAY)
+					Yeh cvtColor() function kya karega jo bhi color image hogi ushe colored
+					se GRAY m convert kar dega bcoz hum image detect toh gray m hee karenge
+					isliye and BGR2GRAY is Background to gray.
+					
+				face_resize=cv2.resize(face,width,height)
+					Ab face m humne jo gray image li h usse resize krne k liye cv2.resize()
+					function ka use kiya h ishme face,width,height jo upar se aarhi h wo
+					parameter m paas kr diye.
+					
+				cv2.imwrite() -> ish function() ka use kiya h humne image ko datasets m write
+								krne k liye(store krne k liye)
+								cv2.write('%s%s.png' %(path,count),face_resize)
+								Here, path jha image store krni h or count.png i.e. 1.png,
+									  2.png,3.png ..... k name se image store hongi png format
+									  mein.
+									  
+	3. identifier():-
+	~~~~~~~~~~~~~~~~~
+		
+		-> identifier() datasets ko read karega or ush se particular program trained ho jayega,
+			or wo btane lagega kis kis ki kya kya image h jab bhi koi camera k saamne aayega.
+			
+		-> Now create a list of images and dictionary of corresponding names
+				(images,lables,names,id)=([],[],{},0)
+				
+		-> for(subdirs,dirs,files) in os.walk(datasets):
+			os.walk(datasets) is work like a tree structure jo ki datasets m directory,subdirectory
+				or unki files ko read kr k in variables m store kar dega.
+				
+			names[id]=subdir
+			subjectpath= os.path.join(datasets,subdir) yeh pura ek path bn jayega ush subdir ka 
+			
+			for filename in os.listdir(subjectpath):
+				-> os.listdir(subjectpath) ka matlab h jo bhi files hongi subdir m wo filename m 
+					store ho jayengi
+					
+				path=subjectpath+'/'+filename
+				lable=id
+				images.append(cv2.imread(path,0))
+					-> imread(path,0) ush path ki first image ko read kr legi or append kr degi 
+						"images" list m.
+				lables.append(int(lable))
+					-> lable ko append isliye kiya h bcoz first image aaygi jo ki abhishek,rini,suyash,
+						harshita kisi ki bhi ho skti h matlab hum sb images ko ek list m store kr rhe h 
+						fir jb image scan hogi toh hum usse index se identify kr ske ki yh kiski image h.
+						
+				id=id+1
+					
+			-> Create a Numpy array from the two lists above
+				(images,lables)=[numpy.array(lis) for lis in [images,lables]]
+				Here,
+					(images,lables) this is a tuple ishka matlab hum ishme se ab koi 
+					cheez na toh delete kr skte na modify kr skte bs add kr skte h.
+					Tuple is immutable.
+					
+				return (images,lables),names -> two things are return one is tuple and 
+												other images corresponding names to the
+												main program.
+												
+								
+3. __init__.py :- (main function)
+----------------
+
+-> Flask is a web framework.
+
+-> app = Flask(__name__) -> __name__ is a built-in variable which evaluate the name of
+							current module.Python m main function na hone k wajeh se 
+							agar aapko main fun. ko utilize krna h toh aapko __name__ 
+							dena padega.
+		
+							main fun. jb bhi call hoga toh jo function pass hoga wo 
+							__name__ k through hoga or jo __name__ k through jo cheez
+							jaa rhi h means jo function call ho rha h usse Flask k 
+							environment m run karana h, toh aapne usse Flask(__name__)
+							m pass kr diya.
+
+-> @app.route('/') -> '/' jo hoti h root directory hoti h ubuntu m .
+					Ish andar ek function banaya index() jo ki call karega index.html ko.
+					
+-> def gen(): -> It is called generate() function yh kya karega jo camera ka frame hoga
+				usse thoda screen se attach kr k niche ki side thoda down m l aagya jisse
+				photo clear dikhe or ek tareeke se frame ki position set kar rhe h window
+				par and Content-type ka matlab h ki jo frame par likha hoga wo show hne 
+				lagega. It is not necessary function, it depends on programmer to use or not.
+
+-> def get_frame(): ->	(Important function)
+	
+		while True: (true becoz continue hume image dikhti rh infinite times)
+			retval,im=camera.read()
+				yh camera ki image ko read krga or im m store kr dega or retval stands 
+				for return value jo ki humesha koi na koi value return karega 0,1,2...
+				
+			gray=cv2.cvtColor(im,cv2.COLOR_BGR2GRAY)
+			canvas=detect(gray,im) -> detect() function jo cam_access.py m bana hua h ushme
+									gray image or color image pass kr di
+									
+			imgencode=cv2.imencode('.jpg',canvas)[1] 
+				yeh cv2.imencode() image ko encode kr dega, bcoz jb bhi aap html yha network
+				par image bhjte ho toh usse encode krna jruri hota h.Encode means bits format.
+				
+			stringData=imgencode.toString() 
+				yeh encode data jo bits format mein h ushki ek binary string create kr dega.
+				(1000010000101010......)
+			
+			yield(b'--frame\r\n'b'Content-type:text/plain\r\n\r\n'+stringData+.....)
+				yh function kya karega jo stringData h ushko decode kr k image frame par
+				dikhane lagegi.yield kya krta h jhaa par aap jo cheez bhjna chahte ho whaa
+				par ushe dikha deti h.
+				"Content-type:text/plain" jhaa bhi aap likh doge wo smj jayega ki aap python
+				ko web-end pr show kra rahe ho.
+				
+			del(camera) -> agar aap camera delete nhi karoge or further datasets banane jaoge
+						   toh wo dusre page p relocate nhi hoga.
+					
+@app.route('/datasets/')					
+-> def get_data(): -> Datasets banane k liye.
+
+		canvas=datasets("harshita") ->datasets() fun. jo cam_access.py mein h wo call hoga
+
+@app.route('/calc')
+->def calc():
+	return Response(get_frame(),mimetype='multipart/x-mixed-replace;boundary=frame')
+	yh kya krga get_frame() method ko call karega html page par and multipart/x-mixed-replace
+	means images multiple parts m aaygi jo replaced bhi hoti rahegi html par(screen par)
+	jisse ek perfect image generate hogi at the end.boundary=frame means frame k andhar hee
+	dikhayi degi or we can say we fixed the boundary of image on screen.
+		
+@app.route('/data')
+->def data_sets():
+	return Response(get_data(),mimetype='multipart/x-mixed-replace;boundary=frame')	
+		ishme jb hum /data pr redirect krnge tb yh camera open kar dega ,whaa pr 
+		get or post method use kiye h jb ushme "harshita" likh k pass krnge toh wo ish
+		method k paas receive ho jayega.
+		
+		
+@app.route('/identify/')		
+-> def identity();  identifier.html page run karega
+
+->def get_identify():
+		
+		model=cv2.face.LBPHFaceRecognizer_create() 
+			yeh face ko recognize kar lega ki yh harshita h,jain h kon h..
+			
+		model.train(images,labels)  
+			ish train() fun. k through program apne aap ko trained karega ,labels means
+			0,1,2,.... 0 label m jitni bhi images h and so on. 
+			
+		prediction=model.predict(face_resize)
+			ishka mtlb h ki program predict karega ki harshita ko harshita dikhayi de,
+			abhishek ko abhishek and so on.
+			
+		if prediction[1]<90  
+			prediction generate karega prediction values jo ki compare kr k aayengi current camera
+			picture or dataset ki images se, jitni prediction value kam hoti h utni
+			accuracy badhti h.
+			
+		cv2.putText(im,'%s-%.0f'% (names[prediction[0]],prediction[1]),(x-10,y-10),cv2.
+			FONT_HERSHEY_PLAIN,1,(0,255,0))
+			ishme x-10,y-10 se jo text hoga wo frame p in coordinates p show hoga or
+			FONT_HERSHEY_PLAIN font type h text ka.
+			
+		x=open("attent.txt","a")
+			yh ush image ka date and time frame k sath append kr k show karega.
+			
+			
+					-----------------x------------------
+			
+			
+		   
+						   
+						   
+		
